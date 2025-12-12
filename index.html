@@ -2499,6 +2499,57 @@
 .font-list-container::-webkit-scrollbar-thumb { background: #FFC6D9; border-radius: 10px; }
 */
 
+      /* ▼▼▼ 新增：萌系滑块样式 (用于字体大小调整) ▼▼▼ */
+      .cute-range-container {
+        margin-bottom: 15px;
+        background: #FFF0F5;
+        border: 2px dashed #FFC6D9;
+        border-radius: 15px;
+        padding: 10px 15px;
+      }
+      .cute-range-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+        font-size: 12px;
+        font-weight: bold;
+        color: #FF8FAB;
+      }
+      .cute-range {
+        -webkit-appearance: none;
+        width: 100%;
+        background: transparent;
+      }
+      .cute-range:focus {
+        outline: none;
+      }
+      /* 滑块轨道 */
+      .cute-range::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 8px;
+        cursor: pointer;
+        background: #fff;
+        border-radius: 4px;
+        border: 1px solid #FFC6D9;
+      }
+      /* 滑块按钮 */
+      .cute-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 16px;
+        width: 16px;
+        border-radius: 50%;
+        background: #FF8FAB;
+        border: 2px solid #fff;
+        box-shadow: 2px 2px 0px #FFC6D9;
+        margin-top: -5px; /* 居中 */
+        cursor: pointer;
+        transition: transform 0.1s;
+      }
+      .cute-range::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+      }
+      /* ▲▲▲ 新增结束 ▲▲▲ */
 
       /* 8. 字体卡片：像素风票据 */
       .font-card {
@@ -2650,32 +2701,34 @@
         <div class="left-panel">
           <div class="app-grid">
             <div class="app-container" data-app-id="app1">
-              <a href="#" class="app-icon"><img src="https://picsum.photos/id/101/100" alt="app" /></a>
+              <!-- 聊天 (QQ) -->
+              <a href="#" class="app-icon"><img src="https://i.postimg.cc/Gh5gh5hK/c3f30de7397cac502c29085c6d1fff58.jpg" alt="app" /></a>
               <span class="app-name">QQ</span>
             </div>
-            <!-- 找到这个 div -->
             <div class="app-container" data-app-id="app2">
-              <!-- ▼▼▼ 在下面的 a 标签里加上 id="worldBookAppBtn" ▼▼▼ -->
+              <!-- 世界书 -->
               <a href="#" id="worldBookAppBtn" class="app-icon"
-                ><img src="https://picsum.photos/id/102/100" alt="app"
+                ><img src="https://i.postimg.cc/1zcK6Cs5/797b8218855b9e006a4cd857831c858e.png" alt="app"
               /></a>
               <span class="app-name">世界书</span>
             </div>
 
-            <!-- 找到这块代码 -->
             <div class="app-container" data-app-id="app3">
-              <!-- 在下面这个 a 标签里加上 id="settingsBtn" -->
-              <a href="#" id="settingsBtn" class="app-icon"><img src="https://picsum.photos/id/103/100" alt="app" /></a>
+              <!-- 外观设置 -->
+              <a href="#" id="settingsBtn" class="app-icon"><img src="https://i.postimg.cc/wMSNnLgk/d8a163f79ce90d0f6f601cb8592181cf.jpg" alt="app" /></a>
               <span class="app-name">外观设置</span>
             </div>
             <div class="app-container" data-app-id="app4">
+              <!-- API设置 -->
               <a href="#" id="apiSettingsBtn" class="app-icon"
-                ><img src="https://picsum.photos/id/104/100" alt="app"
+                ><img src="https://i.postimg.cc/mrQmjZNP/755833b3720f2479fbdbc98eca523cfa.png" alt="app"
               /></a>
               <span class="app-name">API设置</span>
             </div>
           </div>
         </div>
+
+
         <div class="right-panel">
           <div class="profile-section">
             <img id="profileAvatar" class="profile-avatar" src="https://picsum.photos/id/1005/200" alt="avatar" />
@@ -2704,22 +2757,28 @@
             <input id="imageDescriptionInput" type="text" placeholder="为图片添加描述..." />
           </div>
         </div>
+
+
         <div class="right-panel">
           <div class="app-grid">
             <div class="app-container" data-app-id="app5">
-              <a href="#" class="app-icon"><img src="https://picsum.photos/id/201/100" alt="app" /></a>
+              <!-- 字体 -->
+              <a href="#" class="app-icon"><img src="https://i.postimg.cc/C5tCY9HQ/d89e4fe200f3165695eb9aff60277ea3.jpg" alt="app" /></a>
               <span class="app-name">字体</span>
             </div>
             <div class="app-container" data-app-id="app6">
-              <a href="#" class="app-icon"><img src="https://picsum.photos/id/202/100" alt="app" /></a>
+              <!-- 一起听 -->
+              <a href="#" class="app-icon"><img src="https://i.postimg.cc/wTC5r8Bz/398450fc25bcfa069b095c6a37fa0306.jpg" alt="app" /></a>
               <span class="app-name">一起听</span>
             </div>
             <div class="app-container" data-app-id="app7">
-              <a href="#" class="app-icon"><img src="https://picsum.photos/id/203/100" alt="app" /></a>
+              <!-- 日记 -->
+              <a href="#" class="app-icon"><img src="https://i.postimg.cc/FKQZY5tV/27a6afe6f542ad1a3018334ad00ccb97.png" alt="app" /></a>
               <span class="app-name">日记</span>
             </div>
             <div class="app-container" data-app-id="app8">
-              <a href="#" class="app-icon"><img src="https://picsum.photos/id/204/100" alt="app" /></a>
+              <!-- 朋友圈 -->
+              <a href="#" class="app-icon"><img src="https://i.postimg.cc/1z6jdrSk/ae0f79fe032dcfc3484774cd44b06209.png" alt="app" /></a>
               <span class="app-name">朋友圈</span>
             </div>
           </div>
@@ -6443,6 +6502,24 @@ ${worldBookContent || '无额外世界设定。'}
               renderFontManagerList();
               alert("已变回原来的样子啦~");
           });
+          // ▼▼▼ 把这段代码粘贴在“恢复默认”按钮的后面 ▼▼▼
+
+          // 7. 新增：字体大小滑块监听
+          const fontSizeSlider = document.getElementById('fontSizeSlider');
+          if (fontSizeSlider) {
+              // 拖动时实时预览
+              fontSizeSlider.addEventListener('input', (e) => {
+                  const delta = parseInt(e.target.value);
+                  applyFontSize(delta);
+              });
+
+              // 松开鼠标时保存设置
+              fontSizeSlider.addEventListener('change', async (e) => {
+                  const delta = parseInt(e.target.value);
+                  await db.userSettings.put({ id: 'fontSizeDelta', value: delta });
+              });
+          }
+          // ▲▲▲ 粘贴结束 ▲▲▲
 
         }
 
@@ -8487,6 +8564,64 @@ ${charSettings.persona}
 
       // ================== 字体管理逻辑 (核心) ==================
       let currentActiveFontId = null;
+      // ▼▼▼ 新增：字体大小管理逻辑 ▼▼▼
+      
+      // 定义需要调整大小的元素及其原始大小 (基准值)
+      const FONT_SIZE_TARGETS = [
+        { selector: '.message-content', base: 16 },       // 聊天气泡
+        { selector: '.app-name', base: 11 },              // APP图标名字
+        { selector: '.contact-name', base: 16 },          // 通讯录名字
+        { selector: '.contact-last-msg', base: 14 },      // 通讯录最后一条消息
+        { selector: '.modal-content p', base: 14 },       // 弹窗正文
+        { selector: '.settings-item label', base: 14 },   // 设置项标签
+        { selector: 'input', base: 14 },                  // 输入框
+        { selector: 'textarea', base: 14 },               // 文本域
+        { selector: 'button', base: 14 },                 // 按钮
+        { selector: '.status-bar', base: 12 },            // 状态栏
+        { selector: '.main-info-bar input', base: 16 }    // 首页搜索框
+      ];
+
+      async function applyFontSize(delta) {
+        // 1. 更新滑块旁边的数字显示
+        const display = document.getElementById('fontSizeValueDisplay');
+        if(display) {
+            display.textContent = delta > 0 ? `+${delta}px` : `${delta}px`;
+        }
+
+        // 2. 移除旧的样式标签
+        const styleId = 'dynamic-font-size-style';
+        let styleTag = document.getElementById(styleId);
+        if (styleTag) styleTag.remove();
+
+        // 3. 如果偏移量为0，则不注入样式（恢复默认）
+        if (parseInt(delta) === 0) return;
+
+        // 4. 生成新的 CSS 规则
+        // 使用 calc() 计算：原始大小 + 偏移量
+        let cssRules = '';
+        FONT_SIZE_TARGETS.forEach(item => {
+           cssRules += `${item.selector} { font-size: calc(${item.base}px + ${delta}px) !important; }\n`;
+        });
+
+        // 5. 注入样式
+        styleTag = document.createElement('style');
+        styleTag.id = styleId;
+        styleTag.textContent = cssRules;
+        document.head.appendChild(styleTag);
+      }
+
+      async function loadAndApplySavedFontSize() {
+          const savedData = await db.userSettings.get('fontSizeDelta');
+          const delta = savedData ? parseInt(savedData.value) : 0;
+          
+          // 更新滑块位置
+          const slider = document.getElementById('fontSizeSlider');
+          if(slider) slider.value = delta;
+
+          // 应用大小
+          applyFontSize(delta);
+      }
+      // ▲▲▲ 新增结束 ▲▲▲
 
       // 1. 加载并应用保存的字体（用于初始化）
       async function loadAndApplySavedFont() {
@@ -8592,6 +8727,7 @@ ${charSettings.persona}
           await loadWorldBooks();
           renderContactsList();
           await loadAndApplySavedFont(); // ▼▼▼ 新增：加载已保存的字体
+await loadAndApplySavedFontSize(); // ▼▼▼ 新增：加载字体大小
 
           const updateTime = () =>
             (timeElement.textContent = new Date().toLocaleTimeString('zh-CN', { hour12: false }));
@@ -10930,6 +11066,18 @@ ${charSettings.persona}
 
         <!-- Tab 1: 字体库列表 -->
         <div id="tab-library" class="cute-tab-content active">
+          
+          <!-- ▼▼▼ 新增：字体大小调节区域 ▼▼▼ -->
+          <div class="cute-range-container">
+            <div class="cute-range-header">
+               <span>SIZE ADJUST (字体大小)</span>
+               <span id="fontSizeValueDisplay" style="color:#A0C4FF;">+0px</span>
+            </div>
+            <!-- 范围从 -2 到 8，步长为 1 -->
+            <input type="range" id="fontSizeSlider" class="cute-range" min="-2" max="8" step="1" value="0">
+          </div>
+          <!-- ▲▲▲ 新增结束 ▲▲▲ -->
+
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
              <span style="font-size:11px; color:#aaa; font-weight:bold;">● 已保存的字体</span>
              <button id="resetFontBtn" style="border:none; background:none; color:#A0C4FF; font-size:11px; cursor:pointer; font-weight:bold;">[ ↺ Reset ]</button>
