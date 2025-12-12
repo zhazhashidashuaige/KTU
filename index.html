@@ -7,9 +7,12 @@
     <style>
       /* --- 基础和全局样式 --- */
       :root {
-        --primary-bg: #0d0d0d;
-        --capsule-bg: rgba(255, 255, 255, 0.1);
-        --capsule-nested-bg: rgba(255, 255, 255, 0.15);
+        /* ▼▼▼ 修改这 3 行 ▼▼▼ */
+        --primary-bg: #ffffff;          /* 默认背景改白色 */
+        --primary-text: #000000;        /* 默认文字改黑色 */
+        
+        /* 建议：默认组件颜色设为黑色带极低透明度，这样在白背景下就是浅灰色，很好看 */
+        --capsule-bg: rgba(0, 0, 0, 0.05); 
         --text-color: #f0f0f0;
         ---text-secondary-color: var(--text-color);
         --accent-color: #00ffff;
@@ -2818,15 +2821,25 @@
             reader.onerror = error => reject(error);
           });
 
-        // --- 默认设置 ---
-        const defaultSettings = {
-          wallpaper: '',
-          backgroundColor: '#ffffff', // <--- 新增这一行 (默认白色)
-          fontColor: '#f0f0f0',
-          bubbleColor: '#ffffff',
-          bubbleOpacity: 0.1,
-          apps: {},
-        };
+// --- 默认设置 ---
+const defaultSettings = {
+  wallpaper: '',
+  
+  // 1. 背景保持白色
+  backgroundColor: '#ffffff', 
+
+  // 2. ⚠️ 字体必须改成黑色，否则在白背景上看不见
+  fontColor: '#000000',   // <--- 原来是 #f0f0f0 (白)，请改成 #000000 (黑)
+
+  // 3. ⚠️ 组件颜色建议改成黑色，配合透明度变成浅灰色
+  // 如果这里填白色，在白色背景上就是“隐形”的
+  bubbleColor: '#000000', // <--- 原来是 #ffffff (白)，建议改成 #000000 (黑)
+  
+  bubbleOpacity: 0.1,     // 黑色 + 0.1透明度 = 淡淡的灰色背景，很适合白底
+  
+  apps: {},
+};
+
 
 
         // 【恢复并添加】这个 IndexedDB 辅助模块
