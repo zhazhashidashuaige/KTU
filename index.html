@@ -281,6 +281,120 @@
         width: 100%;
         outline: none;
       }
+      /* ================== 拍立得 & 胶卷组件 (精致小巧版) ================== */
+      
+      /* 1. 最外层容器 */
+      .polaroid-widget-container {
+        position: relative;
+        width: 100%;
+        /* 🟢 容器总高度：如果觉得组件被截断了，就把这个数字改大 */
+        height: 240px; 
+        display: flex;
+        justify-content: center;
+        overflow: visible;
+        margin-top: 5px;
+      }
+
+      /* 2. 左侧拍立得卡片 (底图) */
+      .polaroid-card {
+        position: absolute;
+        /* 🟢 位置调整 */
+        left: 15px;   /* 距离左边的距离 */
+        top: 0px;     /* 距离顶部的距离 */
+        
+        /* 🟢 大小调整 */
+        width: 200px; /* 卡片总宽度 (之前是200，改小了) */
+        
+        /* 🟢 旋转角度 */
+        transform: rotate(-1deg); /* 0deg = 正的，不歪 */
+        
+        background-color: #fff;
+        padding: 8px 8px 35px 8px; /* 内边距：上 右 下 左 (下边距大是为了留白写字) */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        z-index: 1; /* 层级：1 代表在后面 */
+        border-radius: 4px;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+      }
+      
+      /* 鼠标放上去的效果 */
+      .polaroid-card:hover {
+        transform: scale(1.02); /* 微微放大 */
+        z-index: 5;
+      }
+
+      /* 拍立得里面的图片区域 */
+      .polaroid-inner {
+        width: 100%;
+        /* 🟢 图片高度：决定照片是正方形还是长方形 */
+        height: 160px; 
+        background-color: #f8f8f8;
+        overflow: hidden;
+        border: 1px solid #eee;
+      }
+      .polaroid-inner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      .polaroid-footer {
+        position: absolute;
+        bottom: 8px;
+        width: 100%;
+        left: 0;
+        text-align: center;
+      }
+      .polaroid-text {
+        font-family: 'Courier New', monospace;
+        font-size: 12px; /* 文字大小 */
+        color: #555;
+        font-weight: bold;
+      }
+
+      /* 3. 右侧胶卷条 (顶层) */
+      .film-strip {
+        position: absolute;
+        /* 🟢 位置调整 */
+        right: 10px;  /* 距离右边的距离 */
+        top: 60px;    /* 距离顶部的距离 (数字越大越靠下) */
+        
+        /* 🟢 大小调整 */
+        width: 65px;  /* 胶卷条宽度 */
+        
+        /* 🟢 旋转角度 */
+        transform: rotate(5deg); /* 正数向右歪，负数向左歪 */
+        
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 5px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        z-index: 10; /* 层级：10 代表在前面 */
+        border-radius: 4px;
+        border: 2px solid #fff;
+        backdrop-filter: blur(2px);
+      }
+
+      .film-frame {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        background-color: #eee;
+        border-radius: 3px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      .film-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .film-frame:hover {
+        transform: scale(1.05);
+      }
 
       /* --- 底部内容区 (图片上传) --- */
       .image-uploader {
@@ -2671,16 +2785,19 @@
         color: #555;
         font-family: monospace;
       }
+
     </style>
   </head>
   <body>
     <div class="phone-screen">
+      <!-- 顶部状态栏 (保持不变) -->
       <div class="status-bar glass-bubble">
         <span class="battery">92%</span>
         <span class="separator">|</span>
         <span class="time" id="current-time">10:25:00</span>
       </div>
 
+      <!-- 搜索栏 (保持不变) -->
       <div class="main-info-bar glass-bubble">
         <div id="profileDot" class="profile-dot"></div>
         <div class="input-area">
@@ -2697,8 +2814,42 @@
         </div>
       </div>
 
+      <!-- 第一行内容区：左侧放组件，右侧放QQ等图标 -->
       <div class="content-section">
+        <!-- 左侧面板 -->
         <div class="left-panel">
+          <div class="polaroid-widget-container">
+            
+            <!-- 1. 拍立得 (大图) -->
+            <!-- id="polaroidMainBox" 用于绑定点击事件 -->
+            <div class="polaroid-card" id="polaroidMainBox">
+              <div class="polaroid-inner">
+                <!-- id="polaroidMainImg" 用于显示图片 -->
+                <img id="polaroidMainImg" src="https://picsum.photos/id/64/300/400" alt="polaroid">
+              </div>
+              <div class="polaroid-footer">
+                <span class="polaroid-text">My Mood ✨</span>
+              </div>
+            </div>
+
+            <!-- 2. 胶卷 (三张小图) -->
+            <div class="film-strip">
+              <div class="film-frame" id="filmFrame1">
+                <img id="filmImg1" src="https://picsum.photos/id/100/100" alt="film1">
+              </div>
+              <div class="film-frame" id="filmFrame2">
+                <img id="filmImg2" src="https://picsum.photos/id/101/100" alt="film2">
+              </div>
+              <div class="film-frame" id="filmFrame3">
+                <img id="filmImg3" src="https://picsum.photos/id/102/100" alt="film3">
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 右侧面板：现在放QQ、世界书等图标 (原先在左边) -->
+        <div class="right-panel">
           <div class="app-grid">
             <div class="app-container" data-app-id="app1">
               <!-- 聊天 (QQ) -->
@@ -2731,37 +2882,12 @@
             </div>
           </div>
         </div>
-
-        <div class="right-panel">
-          <div class="profile-section">
-            <img id="profileAvatar" class="profile-avatar" src="https://picsum.photos/id/1005/200" alt="avatar" />
-            <div class="chat-widget glass-bubble">
-              <input id="moodInput" type="text" placeholder="心情..." />
-            </div>
-          </div>
-          <div class="thought-bubble glass-bubble">
-            <textarea id="thoughtTextarea" placeholder="输入你的想法..."></textarea>
-            <div class="prompt-capsule">
-              <svg class="magic-wand-svg" viewBox="0 0 24 24">
-                <path
-                  d="M14.36,4.64l-4.24,4.24l1.41,1.41l4.24-4.24L14.36,4.64z M15.07,3.93l-1.41-1.41l-4.24,4.24l1.41,1.41 L15.07,3.93z M5.5,14.5c-1.65,0-3,1.35-3,3s1.35,3,3,3s3-1.35,3-3S7.15,14.5,5.5,14.5z M18.5,2.5c-1.65,0-3,1.35-3,3 s1.35,3,3,3s3-1.35,3-3S20.15,2.5,18.5,2.5z M20.91,7.95l-1.41-1.41l-2.12,2.12l1.41,1.41L20.91,7.95z M3.09,16.05l1.41,1.41 l2.12-2.12l-1.41-1.41L3.09,16.05z"
-                ></path>
-              </svg>
-              <input id="magicPromptInput" type="text" placeholder="添加魔法指令..." />
-            </div>
-          </div>
-        </div>
       </div>
 
+      <!-- 第二行内容区：左侧放字体等图标，右侧放图片组件 -->
       <div class="content-section">
+        <!-- 左侧面板：现在放字体、一起听等图标 (原先在右边) -->
         <div class="left-panel">
-          <div class="image-uploader glass-bubble">
-            <div id="imagePlaceholder" class="image-placeholder"></div>
-            <input id="imageDescriptionInput" type="text" placeholder="为图片添加描述..." />
-          </div>
-        </div>
-
-        <div class="right-panel">
           <div class="app-grid">
             <div class="app-container" data-app-id="app5">
               <!-- 字体 -->
@@ -2791,6 +2917,14 @@
               /></a>
               <span class="app-name">朋友圈</span>
             </div>
+          </div>
+        </div>
+
+        <!-- 右侧面板：现在放图片上传/小组件 (原先在左边) -->
+        <div class="right-panel">
+          <div class="image-uploader glass-bubble">
+            <div id="imagePlaceholder" class="image-placeholder"></div>
+            <input id="imageDescriptionInput" type="text" placeholder="为图片添加描述..." />
           </div>
         </div>
       </div>
@@ -5490,6 +5624,26 @@ ${worldBookContent || '无额外世界设定。'}
             openStickerLibraryModal('char'); // 明确指定 'char' 上下文
           });
           // ▼▼▼ 把这段新的事件监听逻辑，粘贴到 setupEventListeners() 函数内 ▼▼▼
+          // --- 拍立得组件点击事件 ---
+          document.getElementById('polaroidMainBox').addEventListener('click', () => {
+            currentEditingTarget = { type: 'polaroidMain' };
+            showModal(imageChoiceModal);
+          });
+          
+          document.getElementById('filmFrame1').addEventListener('click', () => {
+            currentEditingTarget = { type: 'film1' };
+            showModal(imageChoiceModal);
+          });
+
+          document.getElementById('filmFrame2').addEventListener('click', () => {
+            currentEditingTarget = { type: 'film2' };
+            showModal(imageChoiceModal);
+          });
+
+          document.getElementById('filmFrame3').addEventListener('click', () => {
+            currentEditingTarget = { type: 'film3' };
+            showModal(imageChoiceModal);
+          });
 
           // --- 工具栏发送图片按钮 ---
           if (toolbarImageBtn) {
@@ -6551,7 +6705,8 @@ ${worldBookContent || '无额外世界设定。'}
 
         // --- Part 5: 其他独立的旧功能 ---
         function setupLegacyListeners() {
-          const IMAGE_ELEMENT_IDS = ['profileDot', 'profileAvatar', 'imagePlaceholder'];
+          const IMAGE_ELEMENT_IDS = ['profileDot', 'profileAvatar', 'imagePlaceholder', 'polaroidMainImg', 'filmImg1', 'filmImg2', 'filmImg3'];
+
           const TEXT_ELEMENT_IDS = [
             'mainChatInput',
             'moodInput',
