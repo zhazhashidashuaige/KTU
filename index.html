@@ -1,8 +1,19 @@
 <html lang="zh-CN">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    
+    <!-- ▼▼▼ 修改这行：加上 viewport-fit=cover (这对刘海屏很重要) ▼▼▼ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
     <title>k兔叽</title>
+
+    <!-- ▼▼▼▼▼▼ 必须加上这两行，才能在桌面打开变全屏 ▼▼▼▼▼▼ -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- 建议加上图标，这样添加到桌面时就是一个可爱的图标，而不是网页截图 -->
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/Gh5gh5hK/c3f30de7397cac502c29085c6d1fff58.jpg">
+    <!-- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ -->
+
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
     <style>
       /* --- 基础和全局样式 --- */
@@ -47,11 +58,21 @@
       .phone-screen {
         width: 100vw;
         height: 100vh;
-        padding: 25px 15px;
+        
+        /* ▼▼▼ 修改开始：适配 iOS 全屏后的安全区域（刘海和底部） ▼▼▼ */
+        /* 使用 max 函数：如果有刘海，用刘海高度；如果没有，用默认的 25px */
+        padding-top: max(25px, env(safe-area-inset-top)); 
+        /* 底部同理，避开小黑条 */
+        padding-bottom: max(15px, env(safe-area-inset-bottom));
+        padding-left: 15px;
+        padding-right: 15px;
+        /* ▲▲▲ 修改结束 ▲▲▲ */
+
         display: flex;
         flex-direction: column;
         gap: 20px;
       }
+
 
       /* --- 通用胶囊/气泡样式 --- */
       .glass-bubble {
@@ -655,14 +676,23 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 15px 20px;
+        
+        /* ▼▼▼ 修改这里：让顶部栏的高度包含刘海的高度 ▼▼▼ */
+        padding-top: max(15px, env(safe-area-inset-top));
+        padding-bottom: 15px;
+        padding-left: 20px;
+        padding-right: 20px;
+        height: auto; /* 确保高度自适应 */
+        /* ▲▲▲ 修改结束 ▲▲▲ */
+
         /* ▼▼▼ 修改这一行：使用组件颜色变量 ▼▼▼ */
         background-color: var(--capsule-bg);
-        backdrop-filter: blur(10px); /* 加上毛玻璃更好看 */
+        backdrop-filter: blur(10px); 
         -webkit-backdrop-filter: blur(10px);
         flex-shrink: 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       }
+
 
       .header-title {
         font-size: 18px;
@@ -5059,6 +5089,10 @@ ${worldBookContent || '无额外世界设定。'}
             } else if (currentEditingTarget.type === 'userVideoCallImage') {
               document.getElementById('userVideoCallImagePreview').src = imageDataUrl;
               // ▲▲▲ 添加结束 ▲▲▲
+    // ▼▼▼▼▼▼▼▼▼▼ 把这 3 行新代码加在这里 ▼▼▼▼▼▼▼▼▼▼
+    } else if (currentEditingTarget.type === 'middleIconPreview') {
+       document.getElementById('middleIconPreview').src = imageDataUrl;
+    // ▲▲▲▲▲▲▲▲▲▲ 加在这里结束 ▲▲▲▲▲▲▲▲▲▲
             } else {
               // 对于独立的旧图片，直接更新UI并存入 IndexedDB
               updateImageUI(currentEditingTarget, imageDataUrl);
@@ -8747,6 +8781,17 @@ ${charSettings.persona}
           await loadGroupSettings();
           await loadBubblePresets();
           await loadWorldBooks();
+          // ▼▼▼ 加载中间图标和气泡颜色 ▼▼▼
+          const savedMiddleIcon = (await db.userSettings.get('middleIconUrl'))?.value;
+          if (savedMiddleIcon && document.getElementById('chat-middle-icon')) {
+              document.getElementById('chat-middle-icon').src = savedMiddleIcon;
+          }
+          const savedBubbleSettings = (await db.userSettings.get('simpleBubbleSettings'))?.value;
+          if (savedBubbleSettings && window.applyGlobalBubbleColors) {
+              window.applyGlobalBubbleColors(savedBubbleSettings);
+          }
+          // ▲▲▲ 加载结束 ▲▲▲
+
           renderContactsList();
           await loadAndApplySavedFont(); // ▼▼▼ 新增：加载已保存的字体
           await loadAndApplySavedFontSize(); // ▼▼▼ 新增：加载字体大小
@@ -9342,10 +9387,244 @@ ${charSettings.persona}
         document.getElementById('cancelCategoryBtn').addEventListener('click', () => {
           hideModal(document.getElementById('stickerCategoryModal'));
         });
+        // --- 分类弹窗的 "取消" 按钮 ---（这是上面的代码）
+        document.getElementById('cancelCategoryBtn').addEventListener('click', () => {
+          hideModal(document.getElementById('stickerCategoryModal'));
+        });
 
-        init().catch(console.error);
+        // ▼▼▼▼▼▼▼▼▼▼ 把新代码粘贴在这里 (开始) ▼▼▼▼▼▼▼▼▼▼
+        
+        // ================== 中间图标与气泡设置逻辑 (可爱圆润版) ==================
+        
+        // 1. 定义出厂默认配置
+        const DEFAULT_THEME = {
+            charBg: '#c1d0dc', charText: '#000000',
+            userBg: '#f7e8e9', userText: '#000000',
+            bottomBarBg: '#ffffff',
+            inputBoxBg: '#e6e6e6', inputBoxText: '#363636',
+            plusBtnBg: '#e6e6e6', plusBtnIcon: '#000000',
+            
+            sendBtnBg: '#ebdbdb',    // 按钮背景色
+            sendBtnText: '#ffffff',  // 按钮文字色
+            
+            isRoundBtn: false, 
+            stashIcon: 'https://cdn-icons-png.flaticon.com/512/25/25667.png',
+            sendIcon: 'https://cdn-icons-png.flaticon.com/512/60/60525.png'
+        };
+
+        // 2. 核心应用函数
+        window.applyGlobalBubbleColors = function(s) {
+            if (!s) s = DEFAULT_THEME;
+
+            const styleId = 'simple-bubble-style-override';
+            let styleTag = document.getElementById(styleId);
+            if (styleTag) styleTag.remove();
+            
+            // 聊天栏按钮形状：圆模式则50%(正圆)，否则4px(微圆角)
+            const chatBtnRadius = s.isRoundBtn ? '50%' : '4px';
+            
+            styleTag = document.createElement('style');
+            styleTag.id = styleId;
+            styleTag.innerHTML = `
+                /* --- 气泡样式 --- */
+                #qq-chat-page .char-message .message-content { background-color: ${s.charBg} !important; color: ${s.charText} !important; }
+                #qq-chat-page .user-message .message-content { background-color: ${s.userBg} !important; color: ${s.userText} !important; }
+                .voice-waveform span { background-color: currentColor !important; }
+                
+                /* --- 底部底栏背景 & 输入框 --- */
+                .chat-input-area { background-color: ${s.bottomBarBg} !important; }
+                #chat-input-box { background-color: ${s.inputBoxBg} !important; color: ${s.inputBoxText} !important; }
+                #chat-input-box::placeholder { color: ${s.inputBoxText} !important; opacity: 0.5; }
+                
+                /* --- 左侧加号 --- */
+                .chat-tool-btn { background-color: ${s.plusBtnBg} !important; color: ${s.plusBtnIcon} !important; border: none !important; }
+
+                /* --- 1. 聊天底栏的按钮 (受开关控制：方/圆) --- */
+                .chat-input-area .chat-send-btn {
+                    background-color: ${s.sendBtnBg} !important; 
+                    color: ${s.sendBtnText} !important;
+                    border-radius: ${chatBtnRadius} !important;
+                    transition: all 0.2s;
+                }
+                
+                /* --- 2. 弹窗里的保存按钮 (强制变成可爱的圆润胶囊) --- */
+                #middleSettingsModal .chat-send-btn {
+                    background-color: ${s.sendBtnBg} !important; 
+                    color: ${s.sendBtnText} !important;
+                    border-radius: 50px !important; /* 这里改成50px，超级圆润 */
+                    width: auto !important;
+                    height: auto !important;
+                    padding: 8px 20px !important; /* 加大一点内边距，更好看 */
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* 加一点点阴影增加立体感 */
+                }
+                
+                /* --- 圆形模式下，仅调整底栏按钮布局 --- */
+                ${s.isRoundBtn ? `
+                    .chat-input-area .chat-send-btn {
+                        width: 40px !important;
+                        height: 40px !important;
+                        padding: 0 !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        min-width: 40px !important; 
+                        overflow: hidden;
+                    }
+                    .chat-buttons-container { gap: 8px !important; } 
+                ` : ''}
+            `;
+            document.head.appendChild(styleTag);
+
+            // B. 处理内容：仅处理聊天栏的按钮，把它们变图片
+            const btns = document.querySelectorAll('.chat-input-area .chat-send-btn');
+            
+            btns.forEach(btn => {
+                // 安全检查：如果这个按钮不小心在弹窗里，忽略它
+                if (btn.closest('.modal-content')) return;
+
+                const text = btn.innerText.trim();
+                if(text === '暂存') btn.dataset.type = 'stash';
+                if(text === '发送') btn.dataset.type = 'send';
+
+                if (s.isRoundBtn) {
+                    // 变成图片
+                    let iconUrl = '';
+                    if (btn.dataset.type === 'stash') iconUrl = s.stashIcon || DEFAULT_THEME.stashIcon;
+                    if (btn.dataset.type === 'send') iconUrl = s.sendIcon || DEFAULT_THEME.sendIcon;
+                    
+                    if (iconUrl) {
+                        btn.innerHTML = `<img src="${iconUrl}" style="width: 20px; height: 20px; object-fit: contain; pointer-events: none;">`;
+                    }
+                } else {
+                    // 变回文字
+                    if (btn.dataset.type === 'stash') btn.innerText = '暂存';
+                    if (btn.dataset.type === 'send') btn.innerText = '发送';
+                }
+            });
+        };
+
+        // 3. 初始化
+        (async function initTheme() {
+            try {
+                const saved = await db.userSettings.get('simpleBubbleSettings');
+                applyGlobalBubbleColors(saved && saved.value ? saved.value : DEFAULT_THEME);
+            } catch (e) { applyGlobalBubbleColors(DEFAULT_THEME); }
+        })();
+
+        // ================== 弹窗交互逻辑 ==================
+        const middleSettingsModal = document.getElementById('middleSettingsModal');
+        const middleIconImg = document.getElementById('chat-middle-icon');
+
+        if (middleIconImg) {
+            middleIconImg.addEventListener('click', async () => {
+                const currentIcon = middleIconImg.src;
+                const previewEl = document.getElementById('middleIconPreview');
+                if(previewEl) previewEl.src = currentIcon;
+
+                let s = (await db.userSettings.get('simpleBubbleSettings'))?.value;
+                if (!s) s = DEFAULT_THEME; 
+                
+                const setVal = (id, val) => {
+                    const el = document.getElementById(id);
+                    const hex = document.getElementById(id + 'Hex');
+                    const safeVal = val || '#ffffff';
+                    if(el) el.value = safeVal;
+                    if(hex) hex.value = safeVal;
+                };
+
+                setVal('charBubbleBgColor', s.charBg); setVal('charBubbleTextColor', s.charText);
+                setVal('userBubbleBgColor', s.userBg); setVal('userBubbleTextColor', s.userText);
+                setVal('bottomBarBgColor', s.bottomBarBg);
+                setVal('inputBoxBgColor', s.inputBoxBg); setVal('inputBoxTextColor', s.inputBoxText);
+                setVal('plusBtnBgColor', s.plusBtnBg); setVal('plusBtnIconColor', s.plusBtnIcon);
+                setVal('sendBtnBgColor', s.sendBtnBg); setVal('sendBtnTextColor', s.sendBtnText);
+
+                const isRoundCheck = document.getElementById('useRoundBtnMode');
+                if(isRoundCheck) isRoundCheck.checked = !!s.isRoundBtn;
+                document.getElementById('stashIconPreview').src = s.stashIcon || DEFAULT_THEME.stashIcon;
+                document.getElementById('sendIconPreview').src = s.sendIcon || DEFAULT_THEME.sendIcon;
+
+                showModal(middleSettingsModal);
+            });
+        }
+
+        const changeMiddleBtn = document.getElementById('changeMiddleIconBtn');
+        const changeStashBtn = document.getElementById('changeStashIconBtn');
+        const changeSendBtn = document.getElementById('changeSendIconBtn');
+
+        if (changeMiddleBtn) {
+            changeMiddleBtn.addEventListener('click', () => {
+                currentEditingTarget = { type: 'middleIconPreview' };
+                showModal(document.getElementById('imageChoiceModal'));
+            });
+        }
+        if (changeStashBtn) {
+            changeStashBtn.addEventListener('click', () => {
+                currentEditingTarget = { type: 'stashIconPreview' };
+                showModal(document.getElementById('imageChoiceModal'));
+            });
+        }
+        if (changeSendBtn) {
+            changeSendBtn.addEventListener('click', () => {
+                currentEditingTarget = { type: 'sendIconPreview' };
+                showModal(document.getElementById('imageChoiceModal'));
+            });
+        }
+
+        function bindColorInput(id) {
+            const picker = document.getElementById(id);
+            const hex = document.getElementById(id + 'Hex');
+            if(picker && hex) {
+                picker.addEventListener('input', () => hex.value = picker.value);
+                hex.addEventListener('change', () => picker.value = hex.value);
+            }
+        }
+        ['charBubbleBgColor', 'charBubbleTextColor', 'userBubbleBgColor', 'userBubbleTextColor',
+         'bottomBarBgColor', 'inputBoxBgColor', 'inputBoxTextColor', 
+         'plusBtnBgColor', 'plusBtnIconColor', 'sendBtnBgColor', 'sendBtnTextColor'
+        ].forEach(id => bindColorInput(id));
+
+        const saveMiddleBtn = document.getElementById('saveMiddleSettingsBtn');
+        if (saveMiddleBtn) {
+            saveMiddleBtn.addEventListener('click', async () => {
+                const previewEl = document.getElementById('middleIconPreview');
+                if(previewEl && middleIconImg) {
+                    middleIconImg.src = previewEl.src;
+                    await db.userSettings.put({ id: 'middleIconUrl', value: previewEl.src });
+                }
+
+                const newSettings = {
+                    charBg: document.getElementById('charBubbleBgColor').value,
+                    charText: document.getElementById('charBubbleTextColor').value,
+                    userBg: document.getElementById('userBubbleBgColor').value,
+                    userText: document.getElementById('userBubbleTextColor').value,
+                    bottomBarBg: document.getElementById('bottomBarBgColor').value,
+                    inputBoxBg: document.getElementById('inputBoxBgColor').value,
+                    inputBoxText: document.getElementById('inputBoxTextColor').value,
+                    plusBtnBg: document.getElementById('plusBtnBgColor').value,
+                    plusBtnIcon: document.getElementById('plusBtnIconColor').value,
+                    sendBtnBg: document.getElementById('sendBtnBgColor').value,
+                    sendBtnText: document.getElementById('sendBtnTextColor').value,
+
+                    isRoundBtn: document.getElementById('useRoundBtnMode').checked,
+                    stashIcon: document.getElementById('stashIconPreview').src,
+                    sendIcon: document.getElementById('sendIconPreview').src
+                };
+
+                await db.userSettings.put({ id: 'simpleBubbleSettings', value: newSettings });
+                applyGlobalBubbleColors(newSettings);
+                hideModal(middleSettingsModal);
+            });
+        }
+
+        const cancelMiddleBtn = document.getElementById('cancelMiddleSettingsBtn');
+        if (cancelMiddleBtn) { cancelMiddleBtn.addEventListener('click', () => hideModal(middleSettingsModal)); }
+
+        // （这是原本最下面的代码，不需要动它，只是让你确认位置）
+        init().catch(console.error); 
       });
     </script>
+
     <!-- 把这些代码加在 </body> 标签之前 -->
 
     <!-- ================== 萌系图片选择弹窗 ================== -->
@@ -9360,6 +9639,111 @@ ${charSettings.persona}
         <button id="closeChoiceModal" class="close-btn">&times;</button>
       </div>
     </div>
+<!-- ================== 中间图标与气泡设置弹窗 (修复颜色版) ================== -->
+<div id="middleSettingsModal" class="modal-overlay" style="display: none">
+  <div class="modal-content" style="max-height: 85vh; overflow-y: auto;">
+    <h3>聊天外观设置</h3>
+    
+    <!-- 1. 中间图标 -->
+    <div class="settings-section-divider"><label>中间图标</label></div>
+    <div class="settings-item-column">
+      <div style="display: flex; align-items: center; gap: 15px; justify-content: center; margin-bottom: 10px;">
+        <img id="middleIconPreview" src="" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.2);">
+        <button id="changeMiddleIconBtn" style="padding: 6px 12px;">更换图标</button>
+      </div>
+    </div>
+
+    <!-- 2. 气泡颜色 -->
+    <div class="settings-section-divider"><label>气泡颜色</label></div>
+    <div class="settings-item">
+      <label>Char 背景</label>
+      <div class="color-input-group"><input type="color" id="charBubbleBgColor"><input type="text" id="charBubbleBgColorHex" style="width: 70px;"></div>
+    </div>
+    <div class="settings-item">
+      <label>Char 文字</label>
+      <div class="color-input-group"><input type="color" id="charBubbleTextColor"><input type="text" id="charBubbleTextColorHex" style="width: 70px;"></div>
+    </div>
+    <div class="settings-item">
+      <label>User 背景</label>
+      <div class="color-input-group"><input type="color" id="userBubbleBgColor"><input type="text" id="userBubbleBgColorHex" style="width: 70px;"></div>
+    </div>
+    <div class="settings-item">
+      <label>User 文字</label>
+      <div class="color-input-group"><input type="color" id="userBubbleTextColor"><input type="text" id="userBubbleTextColorHex" style="width: 70px;"></div>
+    </div>
+
+    <!-- 3. 底部基础设置 -->
+    <div class="settings-section-divider"><label>底部 - 基础配色</label></div>
+    <div class="settings-item">
+      <label>底栏背景</label>
+      <div class="color-input-group"><input type="color" id="bottomBarBgColor"><input type="text" id="bottomBarBgColorHex" style="width: 70px;"></div>
+    </div>
+    <div class="settings-item">
+      <label>输入框背景</label>
+      <div class="color-input-group"><input type="color" id="inputBoxBgColor"><input type="text" id="inputBoxBgColorHex" style="width: 70px;"></div>
+    </div>
+    <div class="settings-item">
+      <label>输入文字色</label>
+      <div class="color-input-group"><input type="color" id="inputBoxTextColor"><input type="text" id="inputBoxTextColorHex" style="width: 70px;"></div>
+    </div>
+    <div class="settings-item">
+      <label>左侧加号背景</label>
+      <div class="color-input-group"><input type="color" id="plusBtnBgColor"><input type="text" id="plusBtnBgColorHex" style="width: 70px;"></div>
+    </div>
+    <div class="settings-item">
+      <label>左侧加号图标</label>
+      <div class="color-input-group"><input type="color" id="plusBtnIconColor"><input type="text" id="plusBtnIconColorHex" style="width: 70px;"></div>
+    </div>
+
+    <!-- ▼▼▼ 4. 发送/暂存按钮设置 (重点修复这里) ▼▼▼ -->
+    <div class="settings-section-divider"><label>底部 - 发送/暂存按钮</label></div>
+    
+    <!-- 这里是你要回来的颜色设置！ -->
+    <div class="settings-item">
+      <label>按钮背景颜色</label>
+      <div class="color-input-group"><input type="color" id="sendBtnBgColor"><input type="text" id="sendBtnBgColorHex" style="width: 70px;"></div>
+    </div>
+    <div class="settings-item">
+      <label>按钮文字颜色</label>
+      <div class="color-input-group"><input type="color" id="sendBtnTextColor"><input type="text" id="sendBtnTextColorHex" style="width: 70px;"></div>
+    </div>
+
+    <!-- 这里是形状和图片设置 -->
+    <div class="settings-item" style="justify-content: flex-start; gap: 10px; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;">
+      <input type="checkbox" id="useRoundBtnMode" style="width: 20px; height: 20px;">
+      <label for="useRoundBtnMode" style="margin: 0; cursor: pointer; font-weight: bold;">开启圆形图标模式</label>
+    </div>
+    <p style="font-size: 12px; opacity: 0.7; margin-bottom: 10px;">开启后按钮变圆，显示图片；关闭后显示文字。背景色均以上面设置为准。</p>
+
+    <!-- 暂存按钮图 -->
+    <div class="settings-item-column" id="stashIconArea">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <label>暂存图标</label>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img id="stashIconPreview" src="" style="width: 32px; height: 32px; border-radius: 4px; border: 1px solid #ccc; object-fit: contain;">
+          <button id="changeStashIconBtn" style="padding: 4px 8px; font-size: 12px;">上传</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 发送按钮图 -->
+    <div class="settings-item-column" id="sendIconArea" style="margin-top: 5px;">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <label>发送图标</label>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img id="sendIconPreview" src="" style="width: 32px; height: 32px; border-radius: 4px; border: 1px solid #ccc; object-fit: contain;">
+          <button id="changeSendIconBtn" style="padding: 4px 8px; font-size: 12px;">上传</button>
+        </div>
+      </div>
+    </div>
+    <!-- ▲▲▲ 修复结束 ▲▲▲ -->
+
+    <div class="modal-buttons" style="margin-top: 25px;">
+      <button id="saveMiddleSettingsBtn" class="chat-send-btn api">保存并应用</button>
+      <button id="cancelMiddleSettingsBtn">取消</button>
+    </div>
+  </div>
+</div>
 
     <!-- ================== 萌系文本编辑弹窗 ================== -->
     <div id="textEditModal" class="modal-overlay" style="display: none">
