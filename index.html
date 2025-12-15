@@ -281,53 +281,51 @@
         width: 100%;
         outline: none;
       }
-      /* ================== 拍立得 & 胶卷组件 (精致小巧版) ================== */
+      /* ================== 拍立得 & 胶卷组件 (图2 同款比例版) ================== */
       
       /* 1. 最外层容器 */
       .polaroid-widget-container {
         position: relative;
         width: 100%;
-        /* 🟢 容器总高度：如果觉得组件被截断了，就把这个数字改大 */
-        height: 240px; 
+        /* 锁定整体宽高比，防止变形 */
+        aspect-ratio: 1 / 1.1; 
+        height: auto; 
         display: flex;
         justify-content: center;
         overflow: visible;
         margin-top: 5px;
       }
 
-      /* 2. 左侧拍立得卡片 (底图) */
+      /* 2. 左侧拍立得卡片 (大图) */
       .polaroid-card {
         position: absolute;
-        /* 🟢 位置调整 */
-        left: 15px;   /* 距离左边的距离 */
-        top: 0px;     /* 距离顶部的距离 */
         
-        /* 🟢 大小调整 */
-        width: 200px; /* 卡片总宽度 (之前是200，改小了) */
+        /* --- 🔴 位置与大小标注 --- */
+        left: 5%;       /* 距离左边 5% */
+        top: 5%;        /* 距离顶部 5% */
+        width: 65%;     /* 宽度占据容器的 65% */
         
-        /* 🟢 旋转角度 */
-        transform: rotate(-1deg); /* 0deg = 正的，不歪 */
+        /* --- 🔴 倾斜角度标注 --- */
+        transform: rotate(-2deg); /* 向左微歪 -2度 */
         
         background-color: #fff;
-        padding: 8px 8px 35px 8px; /* 内边距：上 右 下 左 (下边距大是为了留白写字) */
+        padding: 4% 4% 18% 4%; /* 下方留白大一点用于写字 */
         box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-        z-index: 1; /* 层级：1 代表在后面 */
+        z-index: 1; /* 在底层 */
         border-radius: 4px;
         transition: transform 0.3s ease;
         cursor: pointer;
       }
       
-      /* 鼠标放上去的效果 */
       .polaroid-card:hover {
-        transform: scale(1.02); /* 微微放大 */
+        transform: scale(1.02) rotate(-2deg);
         z-index: 5;
       }
 
-      /* 拍立得里面的图片区域 */
+      /* 拍立得内部图片 */
       .polaroid-inner {
         width: 100%;
-        /* 🟢 图片高度：决定照片是正方形还是长方形 */
-        height: 160px; 
+        aspect-ratio: 1 / 1; /* 正方形 */
         background-color: #f8f8f8;
         overflow: hidden;
         border: 1px solid #eee;
@@ -340,60 +338,72 @@
       
       .polaroid-footer {
         position: absolute;
-        bottom: 8px;
+        bottom: 6%; 
         width: 100%;
         left: 0;
         text-align: center;
       }
       .polaroid-text {
         font-family: 'Courier New', monospace;
-        font-size: 12px; /* 文字大小 */
-        color: #555;
-        font-weight: bold;
+        font-size: clamp(10px, 3vw, 14px); 
+        color: #888;
+        letter-spacing: 1px;
+        
+        /* 🟢 新增：让鼠标变成小手，并且增加层级防止被遮挡 */
+        cursor: pointer;
+        position: relative;
+        z-index: 10; 
+      }
+      
+      /* 🟢 新增：鼠标悬停时变色，提示可点击 */
+      .polaroid-text:hover {
+        color: var(--accent-color);
       }
 
-      /* 3. 右侧胶卷条 (顶层) */
+
+      /* 3. 右侧胶卷条 (三张小图) */
       .film-strip {
         position: absolute;
-        /* 🟢 位置调整 */
-        right: 10px;  /* 距离右边的距离 */
-        top: 60px;    /* 距离顶部的距离 (数字越大越靠下) */
         
-        /* 🟢 大小调整 */
-        width: 65px;  /* 胶卷条宽度 */
+        /* --- 🔴 位置与大小标注 (关键修改) --- */
+        right: 8%;      /* 距离右边 8% (数值越大越往左靠，产生重叠感) */
+        top: 22%;       /* 距离顶部 22% (比拍立得低，形成错落) */
+        width: 26%;     /* 宽度占据容器的 26% */
         
-        /* 🟢 旋转角度 */
-        transform: rotate(5deg); /* 正数向右歪，负数向左歪 */
+        /* --- 🔴 倾斜角度标注 --- */
+        transform: rotate(6deg); /* 向右歪 6度 */
         
-        background-color: rgba(255, 255, 255, 0.95);
-        padding: 5px;
+        /* 样式微调：让它更像照片条而不是玻璃 */
+        background-color: #fff; 
+        padding: 3%;
         display: flex;
         flex-direction: column;
-        gap: 6px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        z-index: 10; /* 层级：10 代表在前面 */
-        border-radius: 4px;
-        border: 2px solid #fff;
-        backdrop-filter: blur(2px);
+        gap: 8px; /* 照片之间的间距 */
+        
+        box-shadow: 0 8px 20px rgba(0,0,0,0.25); /* 阴影加深，增加立体感 */
+        z-index: 10; /* 在顶层，压住拍立得 */
+        border-radius: 2px;
       }
 
       .film-frame {
         width: 100%;
         aspect-ratio: 1 / 1;
         background-color: #eee;
-        border-radius: 3px;
         overflow: hidden;
         cursor: pointer;
         transition: transform 0.2s;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        /* 给小照片加一点点内描边，更像大头贴 */
+        border: 1px solid rgba(0,0,0,0.05); 
       }
       .film-frame img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        filter: saturate(0.8); /* 稍微降低饱和度，更有胶片感 */
       }
       .film-frame:hover {
         transform: scale(1.05);
+        filter: brightness(1.1);
       }
 
       /* --- 底部内容区 (图片上传) --- */
@@ -2828,7 +2838,9 @@
                 <img id="polaroidMainImg" src="https://picsum.photos/id/64/300/400" alt="polaroid">
               </div>
               <div class="polaroid-footer">
-                <span class="polaroid-text">My Mood ✨</span>
+                <!-- 加了 id="polaroidText" -->
+<span id="polaroidText" class="polaroid-text">ᗜ 𐋣 ᗜ ಣ</span>
+
               </div>
             </div>
 
@@ -5625,6 +5637,19 @@ ${worldBookContent || '无额外世界设定。'}
           });
           // ▼▼▼ 把这段新的事件监听逻辑，粘贴到 setupEventListeners() 函数内 ▼▼▼
           // --- 拍立得组件点击事件 ---
+          // --- 拍立得文字点击编辑 (新增) ---
+          const polaroidTextEl = document.getElementById('polaroidText');
+          if (polaroidTextEl) {
+            polaroidTextEl.addEventListener('click', (e) => {
+              e.stopPropagation(); // 🔴 关键：阻止冒泡，防止触发拍立得换图
+              currentEditingTarget = polaroidTextEl;
+              document.getElementById('textEditTitle').textContent = '编辑拍立得文字';
+              document.getElementById('textEditArea').value = polaroidTextEl.textContent;
+              showModal(textEditModal);
+              setTimeout(() => document.getElementById('textEditArea').focus(), 310);
+            });
+          }
+
           document.getElementById('polaroidMainBox').addEventListener('click', () => {
             currentEditingTarget = { type: 'polaroidMain' };
             showModal(imageChoiceModal);
@@ -6735,20 +6760,26 @@ ${worldBookContent || '无额外世界设定。'}
                 setTimeout(() => document.getElementById('textEditArea').focus(), 310);
               });
           });
+          // ▼▼▼ 替换原来的 saveTextBtn 监听器 ▼▼▼
           document.getElementById('saveTextBtn').addEventListener('click', async () => {
-            // <--- 添加 async
-            if (
-              currentEditingTarget &&
-              typeof currentEditingTarget !== 'string' &&
-              currentEditingTarget.type === undefined
-            ) {
+            if (currentEditingTarget) {
               const newValue = document.getElementById('textEditArea').value;
-              currentEditingTarget.value = newValue;
-              // 也保存到 IndexedDB
-              await db.userSettings.put({ id: currentEditingTarget.id, value: newValue });
+              
+              // 判断是输入框还是普通文本标签
+              if (currentEditingTarget.tagName === 'INPUT' || currentEditingTarget.tagName === 'TEXTAREA') {
+                currentEditingTarget.value = newValue;
+              } else {
+                currentEditingTarget.textContent = newValue; // 对于 span 使用 textContent
+              }
+
+              // 保存到数据库
+              if (currentEditingTarget.id) {
+                await db.userSettings.put({ id: currentEditingTarget.id, value: newValue });
+              }
             }
             hideModal(textEditModal);
           });
+          // ▲▲▲ 替换结束 ▲▲▲
           [imageChoiceModal, textEditModal, settingsModal, editAppModal, apiSettingsModal].forEach(modal => {
             if (modal)
               modal.addEventListener('click', e => {
@@ -8935,6 +8966,7 @@ ${charSettings.persona}
           currentSettings = await loadSettings();
           applySettings(currentSettings);
 
+          // ▼▼▼ 修改这里：加入了 'polaroidText' ▼▼▼
           const independentItemIds = [
             'profileDot',
             'profileAvatar',
@@ -8944,21 +8976,24 @@ ${charSettings.persona}
             'thoughtTextarea',
             'magicPromptInput',
             'imageDescriptionInput',
+            'polaroidText' // <--- 新增这一项
           ];
-          // 使用 Dexie 的 bulkGet 方法一次性高效获取所有数据
+          
           const items = await db.userSettings.bulkGet(independentItemIds);
 
           items.forEach((item, index) => {
             if (item) {
-              // 确保数据库中有这个项目
               const elementId = independentItemIds[index];
               const element = document.getElementById(elementId);
               if (element) {
-                // 根据ID判断是图片还是文本
                 if (['profileDot', 'profileAvatar', 'imagePlaceholder'].includes(elementId)) {
                   updateImageUI(element, item.value);
-                } else {
+                } else if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                  //如果是输入框
                   element.value = item.value;
+                } else {
+                  //如果是 span (比如拍立得文字)
+                  element.textContent = item.value;
                 }
               }
             }
