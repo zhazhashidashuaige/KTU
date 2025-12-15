@@ -2795,6 +2795,94 @@
         color: #555;
         font-family: monospace;
       }
+      /* ================== 拟态音乐播放器组件 (新) ================== */
+      .music-player-widget {
+        width: 100%;
+        /* 保持美观的垂直比例 */
+        aspect-ratio: 1 / 1.25; 
+        padding: 20px 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+      }
+
+      /* 1. 专辑封面区域 */
+      .music-cover {
+        width: 65%; /* 占据宽度的 65%，保持比例 */
+        aspect-ratio: 1 / 1; /* 正方形 */
+        border-radius: 12px;
+        background-color: rgba(0,0,0,0.05);
+        background-size: cover;
+        background-position: center;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* 柔和阴影 */
+        cursor: pointer;
+        margin-top: 10px;
+        transition: transform 0.2s;
+        /* 默认占位图，稍后JS会覆盖 */
+        background-image: url('https://picsum.photos/id/39/300/300');
+      }
+      .music-cover:hover {
+        transform: scale(1.02);
+      }
+
+      /* 2. 左右信息文字 (如：Linh - Mac Khien Ty Ty) */
+      .music-info-row {
+        width: 85%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        margin-bottom: 5px;
+      }
+      .music-info-text {
+        font-size: 12px;
+        color: var(--text-secondary-color);
+        font-weight: bold;
+        opacity: 0.7;
+        cursor: pointer;
+      }
+      .music-info-text:hover {
+        opacity: 1;
+        color: var(--accent-color);
+      }
+
+      /* 3. 播放进度条 */
+      .music-progress-bar {
+        width: 85%;
+        height: 4px;
+        background-color: rgba(0,0,0,0.05); /* 轨道颜色 */
+        border-radius: 2px;
+        position: relative;
+        overflow: hidden;
+      }
+      .music-progress-fill {
+        width: 70%; /* 假装播放到了 70% */
+        height: 100%;
+        background-color: var(--text-color); /* 填充颜色跟随字体色 */
+        border-radius: 2px;
+        opacity: 0.8;
+      }
+
+      /* 4. 底部歌词/心情 */
+      .music-lyrics {
+        margin-top: 10px;
+        margin-bottom: 5px;
+        font-size: 13px;
+        color: var(--text-color);
+        text-align: center;
+        cursor: pointer;
+        opacity: 0.9;
+        font-family: 'Courier New', sans-serif; /* 稍微换个字体更有感觉 */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 90%;
+      }
+      .music-lyrics:hover {
+        text-decoration: underline;
+      }
 
     </style>
   </head>
@@ -2932,15 +3020,28 @@
           </div>
         </div>
 
-        <!-- 右侧面板：现在放图片上传/小组件 (原先在左边) -->
+        <!-- 右侧面板：拟态音乐播放器 -->
         <div class="right-panel">
-          <div class="image-uploader glass-bubble">
-            <div id="imagePlaceholder" class="image-placeholder"></div>
-            <input id="imageDescriptionInput" type="text" placeholder="为图片添加描述..." />
+          <div class="music-player-widget">
+
+            <!-- 1. 封面 (点击换图) -->
+            <div id="musicCover" class="music-cover"></div>
+
+            <!-- 2. 信息行 (点击改字) -->
+            <div class="music-info-row">
+              <span id="musicLeftText" class="music-info-text">Linh</span>
+              <span id="musicRightText" class="music-info-text">Mạc Khiên Tý Tý</span>
+            </div>
+
+            <!-- 3. 进度条 (装饰用) -->
+            <div class="music-progress-bar">
+              <div class="music-progress-fill"></div>
+            </div>
+
+            <!-- 4. 歌词/心情 (点击改字) -->
+            <div id="musicLyrics" class="music-lyrics">私たちの約束 (* ˊ ᵕ ˋ )</div>
           </div>
         </div>
-      </div>
-    </div>
 
     <script>
       const db = new Dexie('MyPhoneSettingsDB');
@@ -3042,7 +3143,7 @@
           // 1. 背景保持白色
           backgroundColor: '#ffffff',
 
-          // 2. ⚠️ 字体必须改成黑色，否则在白背景上看不见
+          // 2.⚠️ 字体必须改成黑色，否则在白背景上看不见
           fontColor: '#000000', // <--- 原来是 #f0f0f0 (白)，请改成 #000000 (黑)
 
           // 3. ⚠️ 组件颜色建议改成黑色，配合透明度变成浅灰色
@@ -5166,7 +5267,6 @@ ${worldBookContent || '无额外世界设定。'}
           // --- 图片上传逻辑 (核心修改区) ---
           // ▼▼▼ 第二处核心修改 ▼▼▼
           const handleImageUpload = async imageDataUrl => {
-            // 注意这里增加了 async
             if (!currentEditingTarget) return;
 
             if (currentEditingTarget.type === 'wallpaper') {
@@ -5184,46 +5284,71 @@ ${worldBookContent || '无额外世界设定。'}
               document.getElementById('charSettingsAvatarPreview').src = imageDataUrl;
             } else if (currentEditingTarget.type === 'userAvatarInSettings') {
               document.getElementById('userSettingsAvatarPreview').src = imageDataUrl;
-              // ▼▼▼ 在这里添加新的 else if 判断 ▼▼▼
             } else if (currentEditingTarget.type === 'newCharAvatar') {
               document.getElementById('newCharAvatarPreview').src = imageDataUrl;
-              // ▲▲▲ 添加结束 ▲▲▲
-              // ▼▼▼ 在这里添加新的 else if 判断 ▼▼▼
             } else if (currentEditingTarget.type === 'npcAvatar') {
               document.getElementById('npcAvatarPreview').src = imageDataUrl;
-              // ▲▲▲ 添加结束 ▲▲▲
-              // ▼▼▼ 在这里添加新的 else if 判断 ▼▼▼
-              // ▼▼▼ 修改这个 else if 判断 ▼▼▼
             } else if (currentEditingTarget.type === 'bubbleBackgroundImage') {
-              // 设置URL输入框的值
               document.getElementById('imageUrlInput').value = imageDataUrl;
-              // 手动触发input事件来更新状态和预览
               document.getElementById('imageUrlInput').dispatchEvent(new Event('input'));
-              // ▼▼▼ 在这里添加新的 else if 判断 ▼▼▼
             } else if (currentEditingTarget.type === 'charVideoCallImage') {
               document.getElementById('charVideoCallImagePreview').src = imageDataUrl;
             } else if (currentEditingTarget.type === 'userVideoCallImage') {
               document.getElementById('userVideoCallImagePreview').src = imageDataUrl;
-              // ▲▲▲ 添加结束 ▲▲▲
-    // ▼▼▼▼▼▼▼▼▼▼ 把这 3 行新代码加在这里 ▼▼▼▼▼▼▼▼▼▼
-    } else if (currentEditingTarget.type === 'middleIconPreview') {
-       document.getElementById('middleIconPreview').src = imageDataUrl;
-    // ▲▲▲▲▲▲▲▲▲▲ 加在这里结束 ▲▲▲▲▲▲▲▲▲▲
+            } else if (currentEditingTarget.type === 'middleIconPreview') {
+              document.getElementById('middleIconPreview').src = imageDataUrl;
+            } else if (currentEditingTarget.type === 'stashIconPreview') {
+               document.getElementById('stashIconPreview').src = imageDataUrl;
+            } else if (currentEditingTarget.type === 'sendIconPreview') {
+               document.getElementById('sendIconPreview').src = imageDataUrl;
+            
+            // ▼▼▼ 这里是新加的判断，确保音乐封面能更新并保存 ▼▼▼
+            } else if (currentEditingTarget.id === 'musicCover') {
+               document.getElementById('musicCover').style.backgroundImage = `url(${imageDataUrl})`;
+               try {
+                 await db.userSettings.put({ id: 'musicCover', value: imageDataUrl });
+               } catch (e) { console.error(e); }
+            // ▲▲▲ 添加结束 ▲▲▲
+
+
+            // ▼▼▼ 新增：胶卷图片 1 ▼▼▼
+            } else if (currentEditingTarget.type === 'film1') {
+               document.getElementById('filmImg1').src = imageDataUrl;
+               try {
+                 await db.userSettings.put({ id: 'filmImg1', value: imageDataUrl });
+               } catch (e) { console.error(e); }
+            // ▼▼▼ 新增：胶卷图片 2 ▼▼▼
+            } else if (currentEditingTarget.type === 'film2') {
+               document.getElementById('filmImg2').src = imageDataUrl;
+               try {
+                 await db.userSettings.put({ id: 'filmImg2', value: imageDataUrl });
+               } catch (e) { console.error(e); }
+            // ▼▼▼ 新增：胶卷图片 3 ▼▼▼
+            } else if (currentEditingTarget.type === 'film3') {
+               document.getElementById('filmImg3').src = imageDataUrl;
+               try {
+                 await db.userSettings.put({ id: 'filmImg3', value: imageDataUrl });
+               } catch (e) { console.error(e); }
+            
+            // ▼▼▼ 顺手修复拍立得大图保存问题（如果存在） ▼▼▼
+            } else if (currentEditingTarget.type === 'polaroidMain') {
+               document.getElementById('polaroidMainImg').src = imageDataUrl;
+               try {
+                 await db.userSettings.put({ id: 'polaroidMainImg', value: imageDataUrl });
+               } catch (e) { console.error(e); }
+
+
             } else {
-              // 对于独立的旧图片，直接更新UI并存入 IndexedDB
+              // 其他普通图片的默认处理
               updateImageUI(currentEditingTarget, imageDataUrl);
               try {
-                // 不再使用 localStorage，而是将数据存入 IndexedDB
-                // 我们复用 userSettings 表，用元素的 id 作为主键
                 await db.userSettings.put({ id: currentEditingTarget.id, value: imageDataUrl });
-                console.log(`Image data for '${currentEditingTarget.id}' saved to IndexedDB.`);
               } catch (error) {
                 console.error(`Failed to save image for '${currentEditingTarget.id}' to IndexedDB:`, error);
                 alert(`图片保存失败: ${error.message}`);
               }
             }
           };
-          // ▲▲▲ 修改结束 ▲▲▲
 
           document.getElementById('uploadLocalBtn').addEventListener('click', () => {
             fileInput.click();
@@ -6730,38 +6855,100 @@ ${worldBookContent || '无额外世界设定。'}
 
         // --- Part 5: 其他独立的旧功能 ---
         function setupLegacyListeners() {
-          const IMAGE_ELEMENT_IDS = ['profileDot', 'profileAvatar', 'imagePlaceholder', 'polaroidMainImg', 'filmImg1', 'filmImg2', 'filmImg3'];
+          // 1. 定义图片的 ID 列表
+          const IMAGE_ELEMENT_IDS = [
+            'profileDot', 'profileAvatar', 'imagePlaceholder', 
+            'polaroidMainImg', 'filmImg1', 'filmImg2', 'filmImg3',
+            'musicCover' 
+          ];
 
+          // 2. 【修复点】定义文字的 ID 列表 (之前缺少了这个定义)
           const TEXT_ELEMENT_IDS = [
+             'polaroidText',   // 拍立得文字
+             'musicLeftText',  // 音乐播放器左边文字
+             'musicRightText', // 音乐播放器右边文字
+             'musicLyrics'     // 歌词/心情文字
+          ];
+
+          // 绑定图片点击事件
+          IMAGE_ELEMENT_IDS.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+              // 移除旧的监听器防止重复（克隆节点法）
+              const newEl = el.cloneNode(true);
+              el.parentNode.replaceChild(newEl, el);
+              
+              newEl.addEventListener('click', (e) => {
+                e.stopPropagation(); // 防止冒泡
+                currentEditingTarget = newEl;
+                showModal(imageChoiceModal);
+              });
+            }
+          });
+
+          // 3. 【修复点】绑定文字点击事件
+          // 改为 click 事件，而不是 focus，因为 span 标签默认无法聚焦
+          TEXT_ELEMENT_IDS.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+              // 移除旧的监听器
+              const newEl = el.cloneNode(true);
+              el.parentNode.replaceChild(newEl, el);
+
+              newEl.addEventListener('click', e => {
+                e.stopPropagation(); // 防止冒泡
+                e.preventDefault();
+                
+                currentEditingTarget = newEl;
+                // 设置弹窗标题
+                let title = "编辑内容";
+                if(id === 'musicLeftText') title = "编辑左侧文字";
+                if(id === 'musicRightText') title = "编辑右侧文字";
+                if(id === 'musicLyrics') title = "编辑歌词/心情";
+                if(id === 'polaroidText') title = "编辑拍立得文字";
+
+                document.getElementById('textEditTitle').textContent = title;
+                // 获取当前文字内容
+                document.getElementById('textEditArea').value = newEl.textContent.trim();
+                showModal(textEditModal);
+                setTimeout(() => document.getElementById('textEditArea').focus(), 310);
+              });
+              
+              // 恢复鼠标手型样式
+              newEl.style.cursor = "pointer";
+            }
+          });
+
+          // 绑定其他独立元素的逻辑 (输入框等)
+          const inputItemIds = [
             'mainChatInput',
             'moodInput',
             'thoughtTextarea',
             'magicPromptInput',
-            'imageDescriptionInput',
+            'imageDescriptionInput'
           ];
-          IMAGE_ELEMENT_IDS.forEach(id => {
-            const el = document.getElementById(id);
-            if (el)
-              el.addEventListener('click', () => {
-                currentEditingTarget = el;
-                showModal(imageChoiceModal);
-              });
+          inputItemIds.forEach(id => {
+             const el = document.getElementById(id);
+             if(el) {
+                el.addEventListener('focus', e => {
+                    e.preventDefault();
+                    el.blur();
+                    currentEditingTarget = el;
+                    document.getElementById('textEditTitle').textContent = `编辑 "${el.placeholder}"`;
+                    document.getElementById('textEditArea').value = el.value;
+                    showModal(textEditModal);
+                    setTimeout(() => document.getElementById('textEditArea').focus(), 310);
+                });
+             }
           });
-          TEXT_ELEMENT_IDS.forEach(id => {
-            const el = document.getElementById(id);
-            if (el)
-              el.addEventListener('focus', e => {
-                e.preventDefault();
-                el.blur();
-                currentEditingTarget = el;
-                document.getElementById('textEditTitle').textContent = `编辑 "${el.placeholder}"`;
-                document.getElementById('textEditArea').value = el.value;
-                showModal(textEditModal);
-                setTimeout(() => document.getElementById('textEditArea').focus(), 310);
-              });
-          });
-          // ▼▼▼ 替换原来的 saveTextBtn 监听器 ▼▼▼
-          document.getElementById('saveTextBtn').addEventListener('click', async () => {
+
+          // 4. 【修复点】保存文字按钮逻辑 (确保正确更新 span 标签)
+          const saveTextBtn = document.getElementById('saveTextBtn');
+          // 移除旧监听器
+          const newSaveBtn = saveTextBtn.cloneNode(true);
+          saveTextBtn.parentNode.replaceChild(newSaveBtn, saveTextBtn);
+          
+          newSaveBtn.addEventListener('click', async () => {
             if (currentEditingTarget) {
               const newValue = document.getElementById('textEditArea').value;
               
@@ -6769,7 +6956,7 @@ ${worldBookContent || '无额外世界设定。'}
               if (currentEditingTarget.tagName === 'INPUT' || currentEditingTarget.tagName === 'TEXTAREA') {
                 currentEditingTarget.value = newValue;
               } else {
-                currentEditingTarget.textContent = newValue; // 对于 span 使用 textContent
+                currentEditingTarget.textContent = newValue; // 对于 span/div 使用 textContent
               }
 
               // 保存到数据库
@@ -6779,15 +6966,28 @@ ${worldBookContent || '无额外世界设定。'}
             }
             hideModal(textEditModal);
           });
-          // ▲▲▲ 替换结束 ▲▲▲
+
+          // 点击遮罩层关闭弹窗
           [imageChoiceModal, textEditModal, settingsModal, editAppModal, apiSettingsModal].forEach(modal => {
             if (modal)
               modal.addEventListener('click', e => {
                 if (e.target === modal) hideModal(modal);
               });
           });
-          document.getElementById('closeChoiceModal').addEventListener('click', () => hideModal(imageChoiceModal));
-          document.getElementById('cancelTextBtn').addEventListener('click', () => hideModal(textEditModal));
+
+          // 5. 【修复点】确保右上角关闭按钮生效
+          // 之前因为上面报错，导致这一行代码没运行，所以关不掉
+          const closeChoiceBtn = document.getElementById('closeChoiceModal');
+          if(closeChoiceBtn) {
+              const newCloseBtn = closeChoiceBtn.cloneNode(true);
+              closeChoiceBtn.parentNode.replaceChild(newCloseBtn, closeChoiceBtn);
+              newCloseBtn.addEventListener('click', () => hideModal(imageChoiceModal));
+          }
+
+          const cancelTextBtn = document.getElementById('cancelTextBtn');
+          if(cancelTextBtn) {
+             cancelTextBtn.addEventListener('click', () => hideModal(textEditModal));
+          }
         }
 
         const updateImageUI = (element, imageData) => {
@@ -8965,18 +9165,27 @@ ${charSettings.persona}
           // 使用 await 等待从 IndexedDB 加载设置
           currentSettings = await loadSettings();
           applySettings(currentSettings);
-
-          // ▼▼▼ 修改这里：加入了 'polaroidText' ▼▼▼
+// 找到 init 函数底部，修改这个数组：
+          // 找到 init 函数底部，修改这个数组：
           const independentItemIds = [
-            'profileDot',
-            'profileAvatar',
-            'imagePlaceholder',
-            'mainChatInput',
-            'moodInput',
-            'thoughtTextarea',
-            'magicPromptInput',
-            'imageDescriptionInput',
-            'polaroidText' // <--- 新增这一项
+              'profileDot',
+              'profileAvatar',
+              'imagePlaceholder',
+              'mainChatInput',
+              'moodInput',
+              'thoughtTextarea',
+              'magicPromptInput',
+              'imageDescriptionInput',
+              'polaroidText',
+              'musicCover',
+              'musicLeftText',
+              'musicRightText',
+              'musicLyrics',
+              // ▼▼▼ 【修复】新增这 4 个 ID，确保刷新后能加载出来 ▼▼▼
+              'filmImg1', 
+              'filmImg2', 
+              'filmImg3',
+              'polaroidMainImg'
           ];
           
           const items = await db.userSettings.bulkGet(independentItemIds);
@@ -8986,13 +9195,19 @@ ${charSettings.persona}
               const elementId = independentItemIds[index];
               const element = document.getElementById(elementId);
               if (element) {
-                if (['profileDot', 'profileAvatar', 'imagePlaceholder'].includes(elementId)) {
+                // ▼▼▼ 【修复】把胶卷图片的ID也加进图片处理列表 ▼▼▼
+                if ([
+                    'profileDot', 'profileAvatar', 'imagePlaceholder', 'musicCover',
+                    'filmImg1', 'filmImg2', 'filmImg3', 'polaroidMainImg'
+                    ].includes(elementId)) {
+                  
                   updateImageUI(element, item.value);
+
                 } else if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
                   //如果是输入框
                   element.value = item.value;
                 } else {
-                  //如果是 span (比如拍立得文字)
+                  //如果是文字
                   element.textContent = item.value;
                 }
               }
