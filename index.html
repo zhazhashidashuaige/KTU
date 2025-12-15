@@ -59,13 +59,11 @@
         width: 100vw;
         height: 100vh;
         
-        /* ▼▼▼ 修改这里：使用 calc 增加额外偏移量 ▼▼▼ */
-        /* 意思是：在刘海高度的基础上，再往下压 20px，保证完全不遮挡 */
-        padding-top: calc(env(safe-area-inset-top) + 20px);
-        
-        /* 底部也加一点缓冲，避开小白条 */
-        padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
-        
+        /* ▼▼▼ 修改开始：适配 iOS 全屏后的安全区域（刘海和底部） ▼▼▼ */
+        /* 使用 max 函数：如果有刘海，用刘海高度；如果没有，用默认的 25px */
+        padding-top: max(25px, env(safe-area-inset-top)); 
+        /* 底部同理，避开小黑条 */
+        padding-bottom: max(15px, env(safe-area-inset-bottom));
         padding-left: 15px;
         padding-right: 15px;
         /* ▲▲▲ 修改结束 ▲▲▲ */
@@ -74,7 +72,6 @@
         flex-direction: column;
         gap: 20px;
       }
-
 
 
       /* --- 通用胶囊/气泡样式 --- */
@@ -680,16 +677,15 @@
         justify-content: space-between;
         align-items: center;
         
-        /* ▼▼▼ 修改这里：让顶部栏变得更高，内容往下沉 ▼▼▼ */
-        padding-top: calc(env(safe-area-inset-top) + 15px);
+        /* ▼▼▼ 修改这里：让顶部栏的高度包含刘海的高度 ▼▼▼ */
+        padding-top: max(15px, env(safe-area-inset-top));
         padding-bottom: 15px;
         padding-left: 20px;
         padding-right: 20px;
+        height: auto; /* 确保高度自适应 */
         /* ▲▲▲ 修改结束 ▲▲▲ */
 
-        /* ▼▼▼ 确保这一行是 auto，这样高度会自动撑开 ▼▼▼ */
-        height: auto; 
-
+        /* ▼▼▼ 修改这一行：使用组件颜色变量 ▼▼▼ */
         background-color: var(--capsule-bg);
         backdrop-filter: blur(10px); 
         -webkit-backdrop-filter: blur(10px);
@@ -861,18 +857,10 @@
       .chat-input-area {
         display: flex;
         align-items: center;
-        
-        /* ▼▼▼ 修改这里：原先是 padding: 10px; 现在拆开写 ▼▼▼ */
-        padding-top: 10px;
-        padding-left: 10px;
-        padding-right: 10px;
-        
-        /* 关键：底部留出小白条的位置 (safe-area) 再额外加 10px 空隙 */
-        padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
-        /* ▲▲▲ 修改结束 ▲▲▲ */
-
+        padding: 10px;
+        /* ▼▼▼ 修改这一行 ▼▼▼ */
         background-color: var(--capsule-bg);
-        backdrop-filter: blur(10px); 
+        backdrop-filter: blur(10px); /* 推荐加上 */
         -webkit-backdrop-filter: blur(10px);
         flex-shrink: 0;
         gap: 10px;
